@@ -6,6 +6,8 @@ Support Friday Night Funkin' on the itch.io page: https://ninja-muffin24.itch.io
 
 IF YOU MAKE A MOD AND DISTRIBUTE A MODIFIED / RECOMPILED VERSION, OPEN SOURCE YOUR MOD AS WELL PLEASE!
 
+[Discord (Please Join!!!)](https://discord.gg/ct6VQqE6Mu)
+
 ## Credits / shoutouts
 
 Creators of Friday Night Funkin':
