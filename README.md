@@ -18,3 +18,4 @@ Creators of Friday Night Funkin':
 Developers of this Engine:
 - [SpunBlue (me!)](https://twitter.com/SpunBlue)
 - [SmugValor (Artist)](https://twitter.com/SmugValor)
+- [Swaggus (Musician)](https://twitter.com/Swagguswithtwog)
