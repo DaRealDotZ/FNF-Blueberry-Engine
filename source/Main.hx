@@ -1,5 +1,6 @@
 package;
 
+import game.TitleState;
 import flixel.FlxGame;
 import flixel.FlxState;
 import openfl.Assets;
@@ -7,6 +8,8 @@ import openfl.Lib;
 import openfl.display.FPS;
 import openfl.display.Sprite;
 import openfl.events.Event;
+import openfl.text.TextField;
+import openfl.text.TextFormat;
 
 class Main extends Sprite
 {
@@ -19,6 +22,8 @@ class Main extends Sprite
 	var startFullscreen:Bool = false; // Whether to start the game in fullscreen on desktop targets
 
 	// You can pretty much ignore everything from here on - your code should go in your states.
+
+	//var textObject:TextField;
 
 	public static function main():Void
 	{
@@ -37,6 +42,11 @@ class Main extends Sprite
 		{
 			addEventListener(Event.ADDED_TO_STAGE, init);
 		}
+
+		/* how do??? i stpid?
+		textObject = new TextField();
+		textObject.text = "Blueberry Engine - SpunBlue";
+		textObject.y = 16;*/
 	}
 
 	private function init(?E:Event):Void
@@ -71,6 +81,7 @@ class Main extends Sprite
 
 		#if !mobile
 		addChild(new FPS(10, 3, 0xFFFFFF));
+		//addChild(textObject);
 		#end
 	}
 }

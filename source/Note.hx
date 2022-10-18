@@ -1,5 +1,6 @@
 package;
 
+import game.PlayState;
 import flixel.FlxSprite;
 import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.math.FlxMath;
@@ -173,9 +174,8 @@ class Note extends FlxSprite
 
 		if (mustPress)
 		{
-			// The * 0.5 is so that it's easier to hit them too late, instead of too early
 			if (strumTime > Conductor.songPosition - Conductor.safeZoneOffset
-				&& strumTime < Conductor.songPosition + (Conductor.safeZoneOffset * 0.5))
+				&& strumTime < Conductor.songPosition + (Conductor.safeZoneOffset * 0.7))
 				canBeHit = true;
 			else
 				canBeHit = false;

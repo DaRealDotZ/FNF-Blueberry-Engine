@@ -39,29 +39,14 @@ class AnimationDebug extends FlxState
 		gridBG.scrollFactor.set(0.5, 0.5);
 		add(gridBG);
 
-		if (daAnim == 'bf')
-			isDad = false;
+		isDad = true;
 
-		if (isDad)
-		{
-			dad = new Character(0, 0, daAnim);
-			dad.screenCenter();
-			dad.debugMode = true;
-			add(dad);
+		dad = new Character(0, 0, daAnim);
+		dad.screenCenter();
+		dad.debugMode = true;
+		add(dad);
 
-			char = dad;
-			dad.flipX = false;
-		}
-		else
-		{
-			bf = new Boyfriend(0, 0);
-			bf.screenCenter();
-			bf.debugMode = true;
-			add(bf);
-
-			char = bf;
-			bf.flipX = false;
-		}
+		char = dad;
 
 		dumbTexts = new FlxTypedGroup<FlxText>();
 		add(dumbTexts);

@@ -1,5 +1,6 @@
 package;
 
+import game.PlayState;
 import lime.app.Promise;
 import lime.app.Future;
 import flixel.FlxG;
@@ -15,7 +16,7 @@ import lime.utils.AssetManifest;
 
 import haxe.io.Path;
 
-class LoadingState extends MusicBeatState
+class LoadingState extends MusicBeatState // yoinked this from sublime trol
 {
 	inline static var MIN_TIME = 1.0;
 	
@@ -23,9 +24,8 @@ class LoadingState extends MusicBeatState
 	var stopMusic = false;
 	var callbacks:MultiCallback;
 	
-	var logo:FlxSprite;
-	var gfDance:FlxSprite;
-	var danceLeft = false;
+	var funkay:FlxSprite;
+	var scale:Float = 1;
 	
 	function new(target:FlxState, stopMusic:Bool)
 	{
@@ -36,22 +36,13 @@ class LoadingState extends MusicBeatState
 	
 	override function create()
 	{
-		logo = new FlxSprite(-150, -100);
-		logo.frames = Paths.getSparrowAtlas('logoBumpin');
-		logo.antialiasing = true;
-		logo.animation.addByPrefix('bump', 'logo bumpin', 24);
-		logo.animation.play('bump');
-		logo.updateHitbox();
-		// logoBl.screenCenter();
-		// logoBl.color = FlxColor.BLACK;
-
-		gfDance = new FlxSprite(FlxG.width * 0.4, FlxG.height * 0.07);
-		gfDance.frames = Paths.getSparrowAtlas('gfDanceTitle');
-		gfDance.animation.addByIndices('danceLeft', 'gfDance', [30, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], "", 24, false);
-		gfDance.animation.addByIndices('danceRight', 'gfDance', [15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29], "", 24, false);
-		gfDance.antialiasing = true;
-		add(gfDance);
-		add(logo);
+		funkay = new FlxSprite(0, 0).loadGraphic(Paths.image('funkay')); //gigachad funkay vs gfDance the weak
+		funkay.antialiasing = true;
+		funkay.scale.x = 1;
+		funkay.scale.y = 1;
+                funkay.screenCenter();
+		funkay.updateHitbox();
+		add(funkay);
 		
 		initSongsManifest().onComplete
 		(
@@ -104,26 +95,26 @@ class LoadingState extends MusicBeatState
 		}
 	}
 	
-	override function beatHit()
-	{
-		super.beatHit();
-		
-		logo.animation.play('bump');
-		danceLeft = !danceLeft;
-		
-		if (danceLeft)
-			gfDance.animation.play('danceRight');
-		else
-			gfDance.animation.play('danceLeft');
-	}
-	
 	override function update(elapsed:Float)
 	{
 		super.update(elapsed);
-		#if debug
-		if (FlxG.keys.justPressed.SPACE)
-			trace('fired: ' + callbacks.getFired() + " unfired:" + callbacks.getUnfired());
-		#end
+
+        if (scale != 1) {
+			scale -= 0.01;
+		}
+
+		if (FlxG.keys.justPressed.SPACE) {
+			scale = 1.1;
+		}
+
+		if (scale > 0.9) {
+			funkay.scale.x = scale;
+		    funkay.scale.y = scale;
+		} else {
+			scale = 1;
+			funkay.scale.x = 1;
+		    funkay.scale.y = 1;
+		}
 	}
 	
 	function onLoad()

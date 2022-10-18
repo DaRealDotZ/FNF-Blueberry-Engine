@@ -1,5 +1,6 @@
 package;
 
+import game.PlayState;
 import lime.utils.Assets;
 
 using StringTools;

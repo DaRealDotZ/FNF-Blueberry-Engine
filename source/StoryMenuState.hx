@@ -1,5 +1,7 @@
 package;
 
+import game.MainMenuState;
+import game.PlayState;
 #if desktop
 import Discord.DiscordClient;
 #end
