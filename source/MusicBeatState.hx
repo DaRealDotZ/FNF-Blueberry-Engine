@@ -1,5 +1,6 @@
 package;
 
+import flixel.util.FlxColor;
 import flixel.math.FlxMath;
 import Conductor.BPMChangeEvent;
 import flixel.FlxG;

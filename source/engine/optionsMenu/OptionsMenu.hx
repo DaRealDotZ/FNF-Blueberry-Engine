@@ -1,91 +1,210 @@
 package engine.optionsMenu;
 
-import flixel.math.FlxMath;
-import flixel.group.FlxGroup;
+import engine.optionsMenu.keybinds.KeybindsState;
+import game.MainMenuState;
+import Controls.Action;
+import cpp.abi.Abi;
+import haxe.ds.Option;
+import openfl.system.System;
+import flixel.FlxState;
+import flixel.util.FlxTimer;
 import flixel.util.FlxColor;
 import flixel.FlxSprite;
+import flixel.text.FlxText;
 import flixel.FlxG;
-import engine.optionsMenu.misc.OptionTextButton;
+import flixel.group.FlxGroup;
+import flixel.FlxSubState;
+import engine.optionsMenu.TextOption;
 
-class OptionsMenu extends MusicBeatState
-{
-    var mouseCursor:FlxSprite;
+using StringTools;
 
-	var optionGroup:FlxTypedGroup<OptionTextButton> = new FlxTypedGroup();
+class OptionsMenu extends MusicBeatState {
+	var funnyOption:TextOption;
+	var background:FlxSprite;
+	var camFollow:FlxSprite;
 
-	var uiGroup:FlxGroup = new FlxGroup();
-	var mouseGroup:FlxTypedGroup<FlxSprite> = new FlxTypedGroup();
+	var curSelected:Int = 0;
+	var curMenu:String = '';
+	
+	var optionsGroup:FlxTypedGroup<TextOption>;
 
-	var optionsArray:Array<String> = ['Gameplay', 'Graphics', 'Modding'];
+	var optionDetails:FlxText;
 
-	var uiBG:FlxSprite;
-    
-    override public function create()
-    {
-        super.create();
+	override function create() {
+		background = new FlxSprite(0, 0, Paths.image('menuBGBlue'));
+		background.scrollFactor.x = 0;
+		background.scrollFactor.y = 0;
+		background.updateHitbox();
+		background.screenCenter();
+		background.antialiasing = true;
+		add(background);
 
-		allowCamBeat = true;
+		optionsGroup = new FlxTypedGroup<TextOption>();
 
-		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuBGBlue'));
-		bg.scrollFactor.set();
-		add(bg);
+		generateOptions();
 
-		uiBG = new FlxSprite(512, 0).makeGraphic(704, 640, FlxColor.BLUE);
-		uiBG.screenCenter(Y);
-		uiBG.alpha = 0.6;
-		add(uiBG);
+		add(optionsGroup);
 
-		add(uiGroup);
-		add(optionGroup);
-		add(mouseGroup);
+		optionDetails = new FlxText(0, 0, FlxG.width, "");
+		optionDetails.setFormat("PhantomMuff 1.5", 32, 0xFF000000, "center");
+		optionDetails.setBorderStyle(FlxTextBorderStyle.OUTLINE, 0xFFFFFFFF, 2, 1);
+		optionDetails.scrollFactor.set();
+		optionDetails.antialiasing = true;
+		add(optionDetails);
 
-		mouseCursor = new FlxSprite().loadGraphic(Paths.image('optionsmenu/cursor'));
-		mouseGroup.add(mouseCursor);
+		camFollow = new FlxSprite(0, 0).makeGraphic(Std.int(optionsGroup.members[0].width), Std.int(optionsGroup.members[0].height), 0xAAFF0000);
+		camFollow.y = optionsGroup.members[0].y;
+		FlxG.camera.follow(camFollow, null, 0.06);
 
-		var lastY:Float = 0;
-
-		for (option in optionsArray){
-			trace(option);
-
-			var option:OptionTextButton = new OptionTextButton(0, lastY + 192, option);
-			optionGroup.add(option);
-
-			lastY += (192 / 2);
-		}
+		super.create();
 	}
 
-	override function update(elapsed:Float)
-	{
-		Conductor.songPosition = FlxG.sound.music.time;
-
-		camera.zoom = FlxMath.lerp(camera.zoom, camera.initialZoom, 0.1);
-
-		super.update(elapsed);
-
-		mouseCursor.setPosition(FlxG.mouse.x, FlxG.mouse.y);
-
-		if (controls.BACK)
-        {
-            FlxG.switchState(new game.MainMenuState());
-        }
-
-		for (option in optionGroup.members){
-			if (option.isClicked())
-				loadMenu(option.text);
+	override function update(elapsed:Float) {
+		if (optionsGroup.members[curSelected] != null){
+			camFollow.y = optionsGroup.members[curSelected].y;
 		}
-	}
 
-	private function loadMenu(menu:String){
-		for (members in uiGroup.members){
-			if (members != null){
-				members.kill();
-				uiGroup.remove(members);
+		for (option in optionsGroup){
+			if (option != null){
+				if (optionsGroup.members[curSelected] != option)
+					option.alpha = 0.6;
+				else
+					option.alpha = 1;
 			}
 		}
 
-		switch (menu.toLowerCase()){
+		if (controls.DOWN_P && curSelected < optionsGroup.members.length - 1 || controls.UP_P && curSelected > 0)
+			FlxG.sound.play(Paths.sound('scrollMenu', 'preload'));
+
+		if (controls.DOWN_P && curSelected < optionsGroup.members.length - 1)
+			curSelected++;
+		if (controls.UP_P && curSelected > 0)
+			curSelected--;
+		if (controls.ACCEPT)
+			optionSelected();
+		if (controls.BACK){
+			curSelected = 0;
+
+			if (curMenu != 'default')
+				generateOptions();
+			else
+				FlxG.switchState(new MainMenuState());
+
+			FlxG.sound.play(Paths.sound('cancelMenu', 'preload'));
+		}
+
+		#if desktop
+		if (FlxG.save.data.allowMods == null)
+			FlxG.save.data.allowMods = true;
+		#end
+
+		switch (optionsGroup.members[curSelected].text.toLowerCase().substr(0, optionsGroup.members[curSelected].text.toLowerCase().indexOf(" ", 0))){
+			case 'ghost-tapping':
+				optionDetails.text = "Disables missing for when you don't hit a note";
+			case 'downscroll':
+				optionDetails.text = "Puts the Strumline at the bottom";
+			case 'middlescroll':
+				optionDetails.text = "Centers the Strumline";
+			case 'botplay':
+				optionDetails.text = "Plays the game for you";
+			case 'distractions':
+				optionDetails.text = "Toggle Distractions";
+			case 'epilepsy':
+				optionDetails.text = "Disables most flashing lights";
+			default:
+				optionDetails.text = "";
+		}
+	}
+
+	function generateOptions(theOptionGroup:String = null){
+		var optionArray:Array<String> = [];
+		var optionSelectionProperties:Array<Int> = []; // 0 - on/off | 1 - New Menu | 2 - Switch State
+
+		for (option in optionsGroup){
+			if (option != null){
+				option.destroy();
+			}
+		}
+
+		optionsGroup.clear();
+
+		switch (theOptionGroup.toLowerCase()){
+			default:
+				optionArray = [
+					'Gameplay',
+					'Graphics',
+					'Modding'
+				];
+
+				optionSelectionProperties = [1, 1, 2];
+				curMenu = 'default';
 			case 'gameplay':
-				trace('yo so cool');
+				optionArray = [
+					"Keybinds",
+					'Ghost-tapping ${FlxG.save.data.disableGhostTap ? 'OFF' : 'ON'}',
+					'Downscroll ${FlxG.save.data.downScroll ? 'ON' : 'OFF'}',
+					'Middlescroll ${FlxG.save.data.middleScroll ? 'ON' : 'OFF'}',
+					'Botplay ${FlxG.save.data.botplay ? 'ON' : 'OFF'}',
+				];
+
+				optionSelectionProperties = [2, 0, 0, 0, 0, 0, 0, 0];
+				curMenu = 'gameplay';
+			case 'graphics':
+				optionArray = [
+				    'Distractions ${FlxG.save.data.noDistractions ? 'OFF' : 'ON'}',
+				    'Epilepsy Mode ${FlxG.save.data.epilepsyMode ? 'ON' : 'OFF'}',
+					'Show Outdated Screen ${FlxG.save.data.disableOutdatedScreen ? 'OFF' : 'ON'}'
+				];
+
+				optionSelectionProperties = [0, 0, 0, 0, 0];
+				curMenu = 'graphics';
+		}
+
+		for (num in 0...optionArray.length){
+			funnyOption = new TextOption(0, 0, optionArray[num], optionSelectionProperties[num]);
+			funnyOption.screenCenter(Y);
+			funnyOption.y = 78 * num;
+			optionsGroup.add(funnyOption);
+		}
+	}
+
+	function optionSelected(){
+		trace('option type: ' + optionsGroup.members[curSelected].funnyOptionType + ' option text: '+ optionsGroup.members[curSelected].text);
+
+		switch (optionsGroup.members[curSelected].funnyOptionType){ // messy but in my opinion it works better than the old system
+			case 0:
+				switch(optionsGroup.members[curSelected].text.toLowerCase().substr(0, optionsGroup.members[curSelected].text.toLowerCase().indexOf(" ", 0))){
+					// gameplay
+					case 'ghost-tapping':
+						FlxG.save.data.disableGhostTap = !FlxG.save.data.disableGhostTap;
+					case 'downscroll':
+						FlxG.save.data.downScroll = !FlxG.save.data.downScroll;
+					case 'middlescroll':
+						FlxG.save.data.middleScroll = !FlxG.save.data.middleScroll;
+					case 'botplay':
+						FlxG.save.data.botplay = !FlxG.save.data.botplay;
+					// graphics
+					case 'distractions':
+						FlxG.save.data.noDistractions = !FlxG.save.data.noDistractions;
+					case 'epilepsy':
+						FlxG.save.data.epilepsyMode = !FlxG.save.data.epilepsyMode;
+					case 'show': // show outdated screen
+						FlxG.save.data.disableOutdatedScreen = !FlxG.save.data.disableOutdatedScreen;
+				}
+
+				generateOptions(curMenu); //reload the current menu
+			case 1:
+				generateOptions(optionsGroup.members[curSelected].text.toLowerCase());
+				curSelected = 0;
+			case 2:
+				switch(optionsGroup.members[curSelected].text.toLowerCase()){
+					case 'keybinds':
+						FlxG.switchState(new KeybindsState());
+					case 'modding':
+						FlxG.sound.play(Paths.sound('badnoise3', 'shared'));
+				}
+			default:
+				trace('error lmao');
 		}
 	}
 }

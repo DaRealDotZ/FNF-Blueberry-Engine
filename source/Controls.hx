@@ -1,6 +1,5 @@
 package;
 
-import engine.optionsMenu.Options;
 import flixel.FlxG;
 import flixel.input.FlxInput;
 import flixel.input.actions.FlxAction;
@@ -493,11 +492,18 @@ class Controls extends FlxActionSet
 		if (reset)
 			removeKeyboard();
 
-		var controlsArray:Array<FlxKey> = Options.userControls;
+		var controlsArray:Array<FlxKey>;
 
-		inline bindKeys(Control.UP, [controlsArray[0], FlxKey.UP]);
+		if (FlxG.save.data.userControls != null)
+			controlsArray = FlxG.save.data.userControls;
+		else{
+			FlxG.save.data.userControls = [A,S,W,D];
+			controlsArray = FlxG.save.data.userControls;
+		}
+
+		inline bindKeys(Control.LEFT, [controlsArray[0], FlxKey.LEFT]);
 		inline bindKeys(Control.DOWN, [controlsArray[1], FlxKey.DOWN]);
-		inline bindKeys(Control.LEFT, [controlsArray[2], FlxKey.LEFT]);
+		inline bindKeys(Control.UP, [controlsArray[2], FlxKey.UP]);
 		inline bindKeys(Control.RIGHT, [controlsArray[3], FlxKey.RIGHT]);
 		inline bindKeys(Control.ACCEPT, [ENTER]);
 		inline bindKeys(Control.BACK, [ESCAPE]);

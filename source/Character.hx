@@ -234,33 +234,21 @@ class Character extends FlxSprite
 				animation.addByPrefix('idle', "Pico Idle Dance", 24);
 				animation.addByPrefix('singUP', 'pico Up note0', 24, false);
 				animation.addByPrefix('singDOWN', 'Pico Down Note0', 24, false);
-				if (isPlayer)
-				{
-					animation.addByPrefix('singLEFT', 'Pico NOTE LEFT0', 24, false);
-					animation.addByPrefix('singRIGHT', 'Pico Note Right0', 24, false);
-					animation.addByPrefix('singRIGHTmiss', 'Pico Note Right Miss', 24, false);
-					animation.addByPrefix('singLEFTmiss', 'Pico NOTE LEFT miss', 24, false);
-				}
-				else
-				{
-					// Need to be flipped! REDO THIS LATER!
-					animation.addByPrefix('singLEFT', 'Pico Note Right0', 24, false);
-					animation.addByPrefix('singRIGHT', 'Pico NOTE LEFT0', 24, false);
-					animation.addByPrefix('singRIGHTmiss', 'Pico NOTE LEFT miss', 24, false);
-					animation.addByPrefix('singLEFTmiss', 'Pico Note Right Miss', 24, false);
-				}
-
+				animation.addByPrefix('singLEFT', 'Pico NOTE LEFT0', 24, false);
+				animation.addByPrefix('singRIGHT', 'Pico Note Right0', 24, false);
+				animation.addByPrefix('singRIGHTmiss', 'Pico Note Right Miss', 24, false);
+				animation.addByPrefix('singLEFTmiss', 'Pico NOTE LEFT miss', 24, false);
 				animation.addByPrefix('singUPmiss', 'pico Up note miss', 24);
 				animation.addByPrefix('singDOWNmiss', 'Pico Down Note MISS', 24);
 
 				addOffset('idle');
 				addOffset("singUP", -29, 27);
-				addOffset("singRIGHT", -68, -7);
-				addOffset("singLEFT", 65, 9);
+				addOffset("singRIGHT", 65, 9);
+				addOffset("singLEFT", -68, -7);
 				addOffset("singDOWN", 200, -70);
 				addOffset("singUPmiss", -19, 67);
-				addOffset("singRIGHTmiss", -60, 41);
-				addOffset("singLEFTmiss", 62, 64);
+				addOffset("singRIGHTmiss", 62, 64);
+				addOffset("singLEFTmiss", -60, 41);
 				addOffset("singDOWNmiss", 210, -28);
 
 				playAnim('idle');
@@ -505,8 +493,8 @@ class Character extends FlxSprite
 				animation.addByPrefix('singDOWN', 'Tankman DOWN note 1', 24);
 				animation.addByPrefix('singLEFT', 'Tankman Note Left 1', 24);
 
-				animation.addByPrefix('singUP-alt', 'TANKMAN UGH', 24);
-				animation.addByPrefix('singDOWN-alt', 'PRETTY GOOD tankman', 24);
+				animation.addByPrefix('tankUgh', 'TANKMAN UGH', 24, false);
+				animation.addByPrefix('tankTalk', 'PRETTY GOOD tankman', 24, false);
 
 				flipX = true;
 
@@ -516,8 +504,8 @@ class Character extends FlxSprite
 				addOffset("singLEFT", -21, -29);
 				addOffset("singDOWN", 76, -101);
 
-				addOffset("singUP-alt", -15, -8);
-				addOffset("singDOWN-alt", 1, 16);
+				addOffset("tankUgh", -15, -8);
+				addOffset("tankTalk", 1, 16);
 
 				playAnim('idle');
 		}
@@ -587,13 +575,18 @@ class Character extends FlxSprite
 	{
 		if (!debugMode)
 		{
-			if (animation.exists('danceLeft') && animation.exists('danceRight')){
+			if (!animation.curAnim.name.startsWith('hair') && animation.exists('danceLeft') && animation.exists('danceRight')){
 				danced = !danced;
 
+				var forcelol:Bool = false;
+
+				if (curCharacter.toLowerCase().startsWith('gf'))
+					forcelol = true; // idk if this will help with anything but i do it anyway lol
+
 				if (danced)
-					playAnim('danceRight');
+					playAnim('danceRight', forcelol);
 				else
-					playAnim('danceLeft');
+					playAnim('danceLeft', forcelol);
 			}
 			else{
 				playAnim('idle');
@@ -636,7 +629,7 @@ class Character extends FlxSprite
 		animOffsets[name] = [x, y];
 	}
 
-	public function singAnimPlay(animationName:String, force:Bool){
+	public function singAnimPlay(animationName:String, force:Bool){ // smart way of fixing the improper singing animations on flipped assets
 		switch (animationName){
 			default:
 				playAnim(animationName, force);
@@ -648,6 +641,16 @@ class Character extends FlxSprite
 			case 'singRIGHT':
 				if (flipX)
 					playAnim('singLEFT', force);
+				else
+					playAnim(animationName, force);
+			case 'singLEFT-alt':
+				if (flipX)
+					playAnim('singRIGHT-alt', force);
+				else
+					playAnim(animationName, force);
+			case 'singRIGHT-alt':
+				if (flipX)
+					playAnim('singLEFT-alt', force);
 				else
 					playAnim(animationName, force);
 		}

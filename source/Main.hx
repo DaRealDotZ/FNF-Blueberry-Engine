@@ -1,5 +1,6 @@
 package;
 
+import lime.app.Application;
 import game.TitleState;
 import flixel.FlxGame;
 import flixel.FlxState;
@@ -42,6 +43,8 @@ class Main extends Sprite
 		{
 			addEventListener(Event.ADDED_TO_STAGE, init);
 		}
+
+		Application.current.window.title = 'Friday Night Funkin\' Blueberry Engine (v${Application.current.meta.get("version")})';
 
 		/* how do??? i stpid?
 		textObject = new TextField();

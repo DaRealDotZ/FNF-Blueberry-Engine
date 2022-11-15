@@ -1,6 +1,5 @@
 package;
 
-import engine.optionsMenu.Options;
 import Controls;
 import flixel.FlxCamera;
 import flixel.FlxG;
@@ -77,6 +76,11 @@ class PlayerSettings
 
 			player2.controls.addDefaultGamepad(1);
 		}
+
+		if (FlxG.save.data.downScroll == null)
+			FlxG.save.data.downScroll = false;
+		if (FlxG.save.data.middleScroll == null)
+			FlxG.save.data.middleScroll = false;
 
 		// DeviceManager.init();
 	}

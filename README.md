@@ -6,7 +6,7 @@ Support Friday Night Funkin' on the itch.io page: https://ninja-muffin24.itch.io
 
 IF YOU MAKE A MOD AND DISTRIBUTE A MODIFIED / RECOMPILED VERSION, OPEN SOURCE YOUR MOD AS WELL PLEASE!
 
-[Discord (Please Join!!!)](https://discord.gg/ct6VQqE6Mu)
+[Blueberry Engine Discord](https://discord.gg/ct6VQqE6Mu)
 
 ## Credits / shoutouts
 
@@ -16,6 +16,6 @@ Creators of Friday Night Funkin':
 - [Kawaisprite](https://twitter.com/kawaisprite) - Musician
 
 Developers of this Engine:
-- [SpunBlue (me!)](https://twitter.com/SpunBlue)
-- [SmugValor (Artist)](https://twitter.com/SmugValor)
-- [Swaggus (Musician)](https://twitter.com/Swagguswithtwog)
+- [SpunBlue](https://twitter.com/SpunBlue) - Programmer
+- [SmugValor](https://twitter.com/SmugValor) - Art
+- [Swaggus](https://twitter.com/Swagguswithtwog) - Musician

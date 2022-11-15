@@ -14,6 +14,8 @@ using StringTools;
 class Note extends FlxSprite
 {
 	public var strumTime:Float = 0;
+	
+	private var strumLengthOffset:Float = Conductor.safeZoneOffset * 0.75;
 
 	public var mustPress:Bool = false;
 	public var noteData:Int = 0;
@@ -174,8 +176,8 @@ class Note extends FlxSprite
 
 		if (mustPress)
 		{
-			if (strumTime > Conductor.songPosition - Conductor.safeZoneOffset
-				&& strumTime < Conductor.songPosition + (Conductor.safeZoneOffset * 0.7))
+			if (strumTime > Conductor.songPosition - strumLengthOffset
+				&& strumTime < Conductor.songPosition + strumLengthOffset)
 				canBeHit = true;
 			else
 				canBeHit = false;

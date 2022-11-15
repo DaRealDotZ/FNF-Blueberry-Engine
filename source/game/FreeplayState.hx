@@ -55,9 +55,9 @@ class FreeplayState extends MusicBeatState
 			songs.push(new SongMetadata(songShit[0], Std.parseInt(songShit[2]), songShit[1]));
 		}
 
-		FlxG.sound.playMusic(Paths.music('chillFresh'), 0);
+		FlxG.sound.playMusic(Paths.music('freeplayMenu'));
 		FlxG.sound.music.fadeIn(0.5, 0, 1);
-		Conductor.changeBPM(117);
+		Conductor.changeBPM(110);
 
 		#if desktop
 		// Updating Discord Rich Presence
@@ -240,8 +240,9 @@ class FreeplayState extends MusicBeatState
 			}
 		}
 		
-		if (bg.color != tcolor)
+		if (bg.color != tcolor){
 			FlxTween.color(bg, 0.5, bg.color, tcolor, {ease: FlxEase.quadInOut, type: ONESHOT});
+		}
 	}
 
 	function changeDiff(change:Int = 0)

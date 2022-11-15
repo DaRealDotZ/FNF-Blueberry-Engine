@@ -1,6 +1,5 @@
 package game;
 
-import engine.optionsMenu.Options;
 #if desktop
 import Discord.DiscordClient;
 import sys.thread.Thread;
@@ -40,6 +39,7 @@ class TitleState extends MusicBeatState
 	var credTextShit:Alphabet;
 	var textGroup:FlxGroup;
 	var ngSpr:FlxSprite;
+	var sbSpr:FlxSprite;
 
 	var curWacky:Array<String> = [];
 
@@ -52,7 +52,6 @@ class TitleState extends MusicBeatState
 		FlxG.save.bind('blueberryEngine', 'spunblue');
 
 		PlayerSettings.init();
-		Options.init();
 
 		Highscore.load();
 
@@ -180,13 +179,21 @@ class TitleState extends MusicBeatState
 
 		credTextShit.visible = false;
 
-		ngSpr = new FlxSprite(0, FlxG.height * 0.52).loadGraphic(Paths.image('newgrounds_logo'));
+		/*ngSpr = new FlxSprite(0, FlxG.height * 0.52).loadGraphic(Paths.image('newgrounds_logo'));
 		add(ngSpr);
 		ngSpr.visible = false;
 		ngSpr.setGraphicSize(Std.int(ngSpr.width * 0.8));
 		ngSpr.updateHitbox();
 		ngSpr.screenCenter(X);
-		ngSpr.antialiasing = true;
+		ngSpr.antialiasing = true;*/
+
+		sbSpr = new FlxSprite(0, FlxG.height * 0.52).loadGraphic(Paths.image('spunblue_logo'));
+		add(sbSpr);
+		sbSpr.visible = false;
+		sbSpr.setGraphicSize(Std.int(sbSpr.width * 0.8));
+		sbSpr.updateHitbox();
+		sbSpr.screenCenter(X);
+		sbSpr.antialiasing = true;
 
 		FlxTween.tween(credTextShit, {y: credTextShit.y + 20}, 2.9, {ease: FlxEase.quadInOut, type: PINGPONG});
 
@@ -327,7 +334,7 @@ class TitleState extends MusicBeatState
 		switch (curBeat)
 		{
 			case 1:
-				createCoolText(['ninjamuffin99', 'phantomArcade', 'kawaisprite', 'evilsk8er']);
+				createCoolText(['SpunBlue', 'SmugValor', 'Swaggus']);
 			// credTextShit.visible = true;
 			case 3:
 				addMoreText('present');
@@ -339,14 +346,14 @@ class TitleState extends MusicBeatState
 			// credTextShit.text = 'In association \nwith';
 			// credTextShit.screenCenter();
 			case 5:
-				createCoolText(['In association', 'with']);
+				createCoolText(['An Engine by']);
 			case 7:
-				addMoreText('newgrounds');
-				ngSpr.visible = true;
+				addMoreText('SpunBlue');
+				sbSpr.visible = true;
 			// credTextShit.text += '\nNewgrounds';
 			case 8:
 				deleteCoolText();
-				ngSpr.visible = false;
+				sbSpr.visible = false;
 			// credTextShit.visible = false;
 
 			// credTextShit.text = 'Shoutouts Tom Fulp';
@@ -382,7 +389,7 @@ class TitleState extends MusicBeatState
 	{
 		if (!skippedIntro)
 		{
-			remove(ngSpr);
+			remove(sbSpr);
 
 			FlxG.camera.flash(FlxColor.WHITE, 4);
 			remove(credGroup);
