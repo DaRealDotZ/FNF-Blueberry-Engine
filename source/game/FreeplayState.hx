@@ -1,5 +1,8 @@
 package game;
 
+import haxe.Json;
+import sys.FileSystem;
+import engine.Modding;
 import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxTimer;
@@ -52,7 +55,20 @@ class FreeplayState extends MusicBeatState
 		{
 			var songShit = song.split(':');
 
-			songs.push(new SongMetadata(songShit[0], Std.parseInt(songShit[2]), songShit[1]));
+			songs.push(new SongMetadata(songShit[0], Std.parseInt(songShit[2]), songShit[1], ""));
+		}
+
+		for (songMod in Modding.loadedMods){
+			if (songMod != null)
+				Modding.curLoaded = songMod;
+
+			if (songMod != null && FileSystem.exists('mods/$songMod/data/songList.txt')){
+				for (song in Modding.retrieveTextArray('songList.txt', 'data')){
+					var songShit = song.split(':');
+
+					songs.push(new SongMetadata(songShit[0], Std.parseInt(songShit[2]), songShit[1], songMod));
+				}
+			}
 		}
 
 		FlxG.sound.playMusic(Paths.music('freeplayMenu'));
@@ -87,7 +103,20 @@ class FreeplayState extends MusicBeatState
 			songText.targetY = i;
 			grpSongs.add(songText);
 
-			var icon:HealthIcon = new HealthIcon(songs[i].songCharacter);
+			var charIsJson:Bool = false;
+			var charIsMod:Bool = false;
+
+			Modding.curLoaded = songs[i].mod;
+
+			if (FileSystem.exists(Modding.getFilePath(songs[i].songCharacter + '.json', 'data/characters'))){
+				charIsJson = true;
+				charIsMod = true;
+			}
+			else if (FileSystem.exists('assets/characters/' + songs[i].songCharacter +'.json')){
+				charIsJson = true;
+			}
+
+			var icon:HealthIcon = new HealthIcon(songs[i].songCharacter, false, charIsJson, charIsMod);
 			icon.sprTracker = songText;
 
 			// using a FlxGroup is too much fuss!
@@ -150,9 +179,9 @@ class FreeplayState extends MusicBeatState
 		super.create();
 	}
 
-	public function addSong(songName:String, week:Int, songCharacter:String)
+	public function addSong(songName:String, week:Int, songCharacter:String, mod:String = "")
 	{
-		songs.push(new SongMetadata(songName,week, songCharacter));
+		songs.push(new SongMetadata(songName,week, songCharacter, mod));
 	}
 
 	override function update(elapsed:Float)
@@ -211,34 +240,57 @@ class FreeplayState extends MusicBeatState
 
 			trace(poop);
 
-			PlayState.SONG = Song.loadFromJson(poop, songs[curSelected].songName.toLowerCase());
+			if (songs[curSelected].mod != ""){
+				Modding.curLoaded = songs[curSelected].mod;
+				Modding.modLoaded = true;
+
+				PlayState.SONG = Song.loadModChart(poop, songs[curSelected].songName.toLowerCase());
+			}
+			else{
+				Modding.modLoaded = false;
+				Modding.curLoaded = "";
+
+				PlayState.SONG = Song.loadFromJson(poop, songs[curSelected].songName.toLowerCase());
+			}
+
 			PlayState.isStoryMode = false;
 			PlayState.storyDifficulty = curDifficulty;
 
 			PlayState.storyWeek = songs[curSelected].week;
 			trace('CUR WEEK' + PlayState.storyWeek);
+
 			LoadingState.loadAndSwitchState(new PlayState());
 		}
 	}
 
 	function updateColor(){
 		var healthColors:Array<String> = CoolUtil.coolTextFile(Paths.txt('healthColors'));
-		
-		for (characters in healthColors){
-			if (!characters.startsWith('#')) {
-				var eugh = characters.split(':');
-				
-				for (bruh in healthColors) {
-					if (!bruh.startsWith('#')) {
-						var eugh = bruh.split(':');
-		
-						if (songs[curSelected].songCharacter.toLowerCase().startsWith(eugh[0])) {
-							tcolor = new FlxColor(Std.parseInt(eugh[1]));
+
+		if (songs[curSelected].mod == null || songs[curSelected].mod == ''){
+			for (characters in healthColors){
+				if (!characters.startsWith('#')) {
+					var eugh = characters.split(':');
+					
+					for (bruh in healthColors) {
+						if (!bruh.startsWith('#')) {
+							var eugh = bruh.split(':');
+			
+							if (songs[curSelected].songCharacter.toLowerCase().startsWith(eugh[0])) {
+								tcolor = new FlxColor(Std.parseInt(eugh[1]));
+							}
 						}
 					}
 				}
 			}
 		}
+		else
+			tcolor = FlxColor.fromRGB(146, 113, 253); /**
+			I tried to get Json Characters healthColor's working but for some reason it would just spit out that there was an invalid character when in reality
+			there wasn't??? So it's just gonna default this, eat my ass.
+
+			Maybe I'll pull a Psych and make it so you have to set a custom color for the song/week idk...
+		**/
+
 		
 		if (bg.color != tcolor){
 			FlxTween.color(bg, 0.5, bg.color, tcolor, {ease: FlxEase.quadInOut, type: ONESHOT});
@@ -318,11 +370,13 @@ class SongMetadata
 	public var songName:String = "";
 	public var week:Int = 0;
 	public var songCharacter:String = "";
+	public var mod:String = "";
 
-	public function new(song:String, week:Int, songCharacter:String)
+	public function new(song:String, week:Int, songCharacter:String, mod:String)
 	{
 		this.songName = song;
 		this.week = week;
 		this.songCharacter = songCharacter;
+		this.mod = mod;
 	}
 }

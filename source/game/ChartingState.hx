@@ -1,5 +1,7 @@
 package game;
 
+import sys.FileSystem;
+import engine.Modding;
 import Conductor.BPMChangeEvent;
 import Section.SwagSection;
 import Song.SwagSong;
@@ -74,16 +76,28 @@ class ChartingState extends MusicBeatState
 	**/
 	var curSelectedNote:Array<Dynamic>;
 
-	var tempBpm:Int = 0;
+	var tempBpm:Float = 0;
 
 	var vocals:FlxSound;
 
 	var leftIcon:HealthIcon;
 	var rightIcon:HealthIcon;
 
+	var enableHitsounds = false;
+	var hitSound:FlxSound;
+
 	override function create()
 	{
+		hitSound = new FlxSound();
+		hitSound.loadEmbedded(Paths.sound('hit', 'shared'));
+
 		curSection = lastSection;
+
+		var funnyBG:FlxSprite = new FlxSprite();
+		funnyBG.loadGraphic(Paths.image('menuDesat'));
+		funnyBG.color = FlxColor.GRAY;
+		funnyBG.scrollFactor.set(0, 0);
+		add(funnyBG);
 
 		gridBG = FlxGridOverlay.create(GRID_SIZE, GRID_SIZE, GRID_SIZE * 8, GRID_SIZE * 16);
 		add(gridBG);
@@ -219,12 +233,29 @@ class ChartingState extends MusicBeatState
 		stepperSpeed.value = _song.speed;
 		stepperSpeed.name = 'song_speed';
 
-		var stepperBPM:FlxUINumericStepper = new FlxUINumericStepper(10, 65, 1, 1, 1, 339, 0);
+		var stepperBPM:FlxUINumericStepper = new FlxUINumericStepper(10, 65, 0.1, 1, 1, 339, 1);
 		stepperBPM.value = Conductor.bpm;
 		stepperBPM.name = 'song_bpm';
 
 		var characters:Array<String> = CoolUtil.coolTextFile(Paths.txt('characterList'));
+
+		if (Modding.modLoaded && FileSystem.readDirectory('mods/' + Modding.curLoaded + '/data/characters/') != null){
+			for (char in FileSystem.readDirectory('mods/' + Modding.curLoaded + '/data/characters/')){
+				if (char != null && char.length > 0 && char.contains('.json')){
+					characters.push(char.replace('.json', ''));
+				}
+			}
+		}
+
 		var stages:Array<String> = CoolUtil.coolTextFile(Paths.txt('stageList'));
+
+		if (Modding.modLoaded && FileSystem.readDirectory('mods/' + Modding.curLoaded + '/data/stages/') != null){
+			for (stage in FileSystem.readDirectory('mods/' + Modding.curLoaded + '/data/stages/')){
+				if (stage != null && stage.length > 0 && stage.contains('.json')){
+					stages.push(stage.replace('.json', ''));
+				}
+			}
+		}
 
 		var player1DropDown = new FlxUIDropDownMenu(10, 100, FlxUIDropDownMenu.makeStrIdLabelArray(characters, true), function(character:String)
 		{
@@ -242,6 +273,8 @@ class ChartingState extends MusicBeatState
 			_song.stage = stages[Std.parseInt(stage)];
 		});
 
+		var check_hitSounds = new FlxUICheckBox(10, check_mute_inst.y + 20, null, null, "Enable Hitsounds", 100);
+
 		player2DropDown.selectedLabel = _song.player2;
 
 		var tab_group_song = new FlxUI(null, UI_box);
@@ -258,6 +291,7 @@ class ChartingState extends MusicBeatState
 		tab_group_song.add(stepperSpeed);
 		tab_group_song.add(player1DropDown);
 		tab_group_song.add(player2DropDown);
+		tab_group_song.add(check_hitSounds);
 		tab_group_song.add(stageDropDown);
 
 		UI_box.addGroup(tab_group_song);
@@ -356,10 +390,15 @@ class ChartingState extends MusicBeatState
 			// vocals.stop();
 		}
 
-		FlxG.sound.playMusic(Paths.inst(daSong), 0.6);
+		if (Modding.modLoaded){
+			FlxG.sound.playMusic(Modding.retrieveAudio('Inst', 'songs/$daSong'), 1, false);
+			vocals = new FlxSound().loadEmbedded(Modding.retrieveAudio('Voices', 'songs/$daSong'));
+		}
+		else{
+			FlxG.sound.playMusic(Paths.inst(daSong), 1, false);
+			vocals = new FlxSound().loadEmbedded(Paths.voices(daSong));
+		}
 
-		// WONT WORK FOR TUTORIAL OR TEST SONG!!! REDO LATER
-		vocals = new FlxSound().loadEmbedded(Paths.voices(daSong));
 		FlxG.sound.list.add(vocals);
 
 		FlxG.sound.music.pause();
@@ -412,6 +451,8 @@ class ChartingState extends MusicBeatState
 					FlxG.log.add('changed bpm shit');
 				case "Alt Animation":
 					_song.notes[curSection].altAnim = check.checked;
+				case "Enable Hitsounds":
+					enableHitsounds = check.checked;
 			}
 		}
 		else if (id == FlxUINumericStepper.CHANGE_EVENT && (sender is FlxUINumericStepper))
@@ -461,7 +502,7 @@ class ChartingState extends MusicBeatState
 	}*/
 	function sectionStartTime():Float
 	{
-		var daBPM:Int = _song.bpm;
+		var daBPM:Float = _song.bpm;
 		var daPos:Float = 0;
 		for (i in 0...curSection)
 		{
@@ -674,6 +715,20 @@ class ChartingState extends MusicBeatState
 			+ "\nSection: "
 			+ curSection;
 		super.update(elapsed);
+
+		for (note in curRenderedNotes) {
+			if (strumLine.overlaps(note)){
+
+				if (enableHitsounds && note.alpha == 1) {
+					hitSound.play(true);
+					trace("played hit");
+				}
+				
+				note.alpha = 0.2;
+			}
+			else
+				note.alpha = 1;
+		}
 	}
 
 	function changeNoteSustain(value:Float):Void
@@ -836,7 +891,7 @@ class ChartingState extends MusicBeatState
 		else
 		{
 			// get last bpm
-			var daBPM:Int = _song.bpm;
+			var daBPM:Float = _song.bpm;
 			for (i in 0...curSection)
 				if (_song.notes[i].changeBPM)
 					daBPM = _song.notes[i].bpm;
@@ -1023,7 +1078,19 @@ class ChartingState extends MusicBeatState
 
 	function loadJson(song:String):Void
 	{
-		PlayState.SONG = Song.loadFromJson(song.toLowerCase(), song.toLowerCase());
+		var diff:String = '';
+
+		switch (PlayState.storyDifficulty)
+		{
+			case 0:
+				diff = "-easy";
+			case 1:
+				diff = '';
+			case 2:
+				diff = "-hard";
+		}
+
+		PlayState.SONG = Song.loadFromJson(song.toLowerCase() + diff, song.toLowerCase());
 		FlxG.resetState();
 	}
 

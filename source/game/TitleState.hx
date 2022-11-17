@@ -1,5 +1,6 @@
 package game;
 
+import engine.Modding;
 #if desktop
 import Discord.DiscordClient;
 import sys.thread.Thread;
@@ -85,6 +86,8 @@ class TitleState extends MusicBeatState
 			DiscordClient.shutdown();
 		 });
 		#end
+
+		Modding.init();
 	}
 
 	var logoBl:FlxSprite;
