@@ -244,6 +244,8 @@ class FreeplayState extends MusicBeatState
 				Modding.curLoaded = songs[curSelected].mod;
 				Modding.modLoaded = true;
 
+				Modding.preloadData(Modding.curLoaded);
+
 				PlayState.SONG = Song.loadModChart(poop, songs[curSelected].songName.toLowerCase());
 			}
 			else{

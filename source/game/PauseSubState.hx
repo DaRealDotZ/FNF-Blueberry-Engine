@@ -1,5 +1,6 @@
 package game;
 
+import engine.Modding;
 import Controls.Control;
 import flixel.FlxG;
 import flixel.FlxSprite;
@@ -17,7 +18,7 @@ class PauseSubState extends MusicBeatSubstate
 {
 	var grpMenuShit:FlxTypedGroup<Alphabet>;
 
-	var menuItems:Array<String> = ['Resume', 'Restart Song', 'Charter', 'Animation Debug', 'Exit to menu'];
+	var menuItems:Array<String> = ['Resume', 'Restart Song', 'Charter', 'Animation Debug'];
 	var curSelected:Int = 0;
 
 	var pauseMusic:FlxSound;
@@ -25,6 +26,13 @@ class PauseSubState extends MusicBeatSubstate
 	public function new(x:Float, y:Float)
 	{
 		super();
+
+		if (Modding.modLoaded){
+			menuItems.push('Reload Data');
+			menuItems.push('Exit to menu');
+		}
+		else
+			menuItems.push('Exit to menu');
 
 		pauseMusic = new FlxSound().loadEmbedded(Paths.music('pause'), true, true);
 		pauseMusic.volume = 0;
@@ -122,6 +130,10 @@ class PauseSubState extends MusicBeatSubstate
 					FlxG.switchState(new ChartingState());
 				case "Animation Debug":
 					FlxG.switchState(new AnimationDebug(PlayState.SONG.player2));
+				case 'Reload Data':
+					Modding.modPreloaded = null;
+					Modding.preloadData(Modding.curLoaded);
+					FlxG.resetState();
 			}
 		}
 
