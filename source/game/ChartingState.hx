@@ -1,7 +1,7 @@
 package game;
 
 import sys.FileSystem;
-import engine.Modding;
+import engine.modding.Modding;
 import Conductor.BPMChangeEvent;
 import Section.SwagSection;
 import Song.SwagSong;
@@ -1080,7 +1080,7 @@ class ChartingState extends MusicBeatState
 	{
 		var diff:String = '';
 
-		switch (PlayState.storyDifficulty)
+		switch (PlayState.gameDifficulty)
 		{
 			case 0:
 				diff = "-easy";

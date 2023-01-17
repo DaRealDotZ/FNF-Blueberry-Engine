@@ -3,7 +3,7 @@ package;
 import sys.io.File;
 import sys.FileSystem;
 import haxe.Json;
-import engine.Modding;
+import engine.modding.Modding;
 import game.PlayState;
 import flixel.FlxG;
 import flixel.FlxSprite;
@@ -745,5 +745,5 @@ typedef AnimArray = {
 	var xmlanim:String;
 	var name:String;
 	var offsets:Array<Int>;
-	var fps:Int;
+	var ?fps:Int;
 }

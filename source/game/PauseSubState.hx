@@ -1,6 +1,6 @@
 package game;
 
-import engine.Modding;
+import engine.modding.Modding;
 import Controls.Control;
 import flixel.FlxG;
 import flixel.FlxSprite;

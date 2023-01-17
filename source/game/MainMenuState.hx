@@ -25,7 +25,7 @@ class MainMenuState extends MusicBeatState
 	var menuItems:FlxTypedGroup<FlxSprite>;
 
 	#if !switch
-	var optionShit:Array<String> = ['story mode', 'freeplay', 'options'];
+	var optionShit:Array<String> = ['freeplay', 'options'];
 	#else
 	var optionShit:Array<String> = ['story mode', 'freeplay'];
 	#end
@@ -95,6 +95,7 @@ class MainMenuState extends MusicBeatState
 			menuItems.add(menuItem);
 			menuItem.scrollFactor.set();
 			menuItem.antialiasing = true;
+			menuItem.y - 120;
 		}
 
 		FlxG.camera.follow(camFollow, null, 0.06);
@@ -161,7 +162,7 @@ class MainMenuState extends MusicBeatState
 							switch (daChoice)
 							{
 								case 'freeplay':
-									FlxG.sound.music.fadeOut(1, 0);
+									//FlxG.sound.music.fadeOut(1, 0);
 							}
 
 							FlxFlicker.flicker(spr, 1, 0.06, false, false, function(flick:FlxFlicker)
@@ -170,9 +171,6 @@ class MainMenuState extends MusicBeatState
 
 								switch (daChoice)
 								{
-									case 'story mode':
-										FlxG.switchState(new StoryMenuState());
-										trace("Story Menu Selected");
 									case 'freeplay':
 										FlxG.switchState(new FreeplayState());
 

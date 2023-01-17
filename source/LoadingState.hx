@@ -1,6 +1,5 @@
 package;
 
-import engine.Modding;
 import lime.utils.AssetCache;
 import game.PlayState;
 import lime.app.Promise;

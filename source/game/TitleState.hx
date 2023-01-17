@@ -1,6 +1,6 @@
 package game;
 
-import engine.Modding;
+import engine.modding.Modding;
 #if desktop
 import Discord.DiscordClient;
 import sys.thread.Thread;
@@ -57,27 +57,6 @@ class TitleState extends MusicBeatState
 
 		super.create();
 
-		if (FlxG.save.data.weekUnlocked != null)
-		{
-			// FIX LATER!!!
-			// WEEK UNLOCK PROGRESSION!!
-			// StoryMenuState.weekUnlocked = FlxG.save.data.weekUnlocked;
-
-			if (StoryMenuState.weekUnlocked.length < 4)
-				StoryMenuState.weekUnlocked.insert(0, true);
-
-			// QUICK PATCH OOPS!
-			if (!StoryMenuState.weekUnlocked[0])
-				StoryMenuState.weekUnlocked[0] = true;
-		}
-
-		/*new FlxTimer().start(1, function(tmr:FlxTimer)
-		{
-			startIntro();
-		});*/
-
-		startIntro();
-
 		#if desktop
 		DiscordClient.initialize();
 		
@@ -87,6 +66,8 @@ class TitleState extends MusicBeatState
 		#end
 
 		Modding.init();
+
+		startIntro();
 	}
 
 	var logoBl:FlxSprite;
