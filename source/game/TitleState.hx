@@ -53,6 +53,8 @@ class TitleState extends MusicBeatState
 
 		PlayerSettings.init();
 
+		engine.OptionsData.loadData();
+
 		Highscore.load();
 
 		super.create();
