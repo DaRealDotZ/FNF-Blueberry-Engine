@@ -634,7 +634,7 @@ class PlayState extends MusicBeatState
 		Conductor.songPosition = -5000;
 
 		strumLine = new FlxSprite(0, 50).makeGraphic(FlxG.width, 10);
-		if (FlxG.save.data.downScroll)
+		if (engine.OptionsData.downScroll)
 			strumLine.y = FlxG.height - 130;
 		strumLine.scrollFactor.set();
 
@@ -670,7 +670,7 @@ class PlayState extends MusicBeatState
 
 		FlxG.fixedTimestep = false;
 
-		healthBarBG = new FlxSprite(0, FlxG.save.data.downScroll == false ? FlxG.height * 0.9 : 50).loadGraphic(Paths.image('healthBar'));
+		healthBarBG = new FlxSprite(0, engine.OptionsData.downScroll == false ? FlxG.height * 0.9 : 50).loadGraphic(Paths.image('healthBar'));
 		healthBarBG.screenCenter(X);
 		healthBarBG.scrollFactor.set();
 		add(healthBarBG);
@@ -874,13 +874,13 @@ class PlayState extends MusicBeatState
 	{
 		inCutscene = false;
 
-		if (!FlxG.save.data.middleScroll)
+		if (!engine.OptionsData.middleScroll)
 			generateStaticArrows(0);
 
 		generateStaticArrows(1);
 
 		// middle scroll offset
-		if (FlxG.save.data.middleScroll){
+		if (engine.OptionsData.middleScroll){
 			for (strumArrow in playerStrums){
 				if (strumArrow != null)
 					strumArrow.x += midScrollOffset;
@@ -1073,7 +1073,7 @@ class PlayState extends MusicBeatState
 
 				var noteOffset:Int = 0;
 
-				if (FlxG.save.data.middleScroll)
+				if (engine.OptionsData.middleScroll)
 					noteOffset = midScrollOffset;
 
 				for (susNote in 0...Math.floor(susLength))
@@ -1095,7 +1095,7 @@ class PlayState extends MusicBeatState
 					else {
 						sustainNote.x += (98) + noteOffset;
 
-						if (FlxG.save.data.middleScroll)
+						if (engine.OptionsData.middleScroll)
 							sustainNote.alpha = 0;
 					}
 				}
@@ -1109,7 +1109,7 @@ class PlayState extends MusicBeatState
 				else {
 					swagNote.x += (98) + noteOffset;
 
-					if (FlxG.save.data.middleScroll)
+					if (engine.OptionsData.middleScroll)
 						swagNote.alpha = 0;
 				}
 			}
@@ -1530,7 +1530,7 @@ class PlayState extends MusicBeatState
 			notes.forEachAlive(function(daNote:Note)
 			{
 				// note interpolation
-				if (FlxG.save.data.downScroll == false)
+				if (engine.OptionsData.downScroll == false)
 					daNote.y = (strumLine.y - (songTime - daNote.strumTime) * (0.45 * songScrollSpeed));
 				else
 					daNote.y = (strumLine.y + (songTime - daNote.strumTime) * (0.45 * songScrollSpeed));
@@ -1546,13 +1546,13 @@ class PlayState extends MusicBeatState
 					daNote.active = true;
 				}
 
-				if (!FlxG.save.data.downScroll)
+				if (!engine.OptionsData.downScroll)
 					daNote.y = (strumLine.y - (Conductor.songPosition - daNote.strumTime) * (0.45 * FlxMath.roundDecimal(songScrollSpeed, 2)));
 				else
 					daNote.y = (strumLine.y + (Conductor.songPosition - daNote.strumTime) * (0.45 * FlxMath.roundDecimal(songScrollSpeed, 2)));
 
 				// i am so fucking sorry for this if condition
-				if (FlxG.save.data.downScroll == false ? daNote.isSustainNote
+				if (engine.OptionsData.downScroll == false ? daNote.isSustainNote
 					&& daNote.y + daNote.offset.y <= strumLine.y + Note.swagWidth / 2
 					&& (!daNote.mustPress || (daNote.wasGoodHit || (daNote.prevNote.wasGoodHit && !daNote.canBeHit))) : daNote.isSustainNote
 					&& daNote.y - daNote.offset.y >= strumLine.y - Note.swagWidth / 2
@@ -1565,7 +1565,7 @@ class PlayState extends MusicBeatState
 					daNote.clipRect = swagRect;
 				}
 
-				if (FlxG.save.data.downScroll == false ? !daNote.mustPress && daNote.y <= strumLine.y : !daNote.mustPress && daNote.y >= strumLine.y)
+				if (engine.OptionsData.downScroll == false ? !daNote.mustPress && daNote.y <= strumLine.y : !daNote.mustPress && daNote.y >= strumLine.y)
 				{
 					if (SONG.song != 'Tutorial')
 						camZooming = true;
@@ -1617,7 +1617,7 @@ class PlayState extends MusicBeatState
 				}
 				
 				// note misses
-				if (FlxG.save.data.downScroll == false ?  daNote.y < -daNote.height : daNote.y > FlxG.height + daNote.height){
+				if (engine.OptionsData.downScroll == false ?  daNote.y < -daNote.height : daNote.y > FlxG.height + daNote.height){
 
 					if (daNote.tooLate && !perfectMode || !daNote.wasGoodHit && !perfectMode)
 					{
@@ -2019,7 +2019,7 @@ class PlayState extends MusicBeatState
 		});
 
 		// miss check
-		if (FlxG.save.data.disableGhostTap && (leftP || downP || upP || rightP) && isNoteConfirmed() == false)
+		if (!engine.OptionsData.disableGhostTap && (leftP || downP || upP || rightP) && isNoteConfirmed() == false)
 			badNoteCheck();
 	}
 
