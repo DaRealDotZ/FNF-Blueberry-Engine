@@ -25,12 +25,31 @@ class OptionsMenu extends MusicBeatState {
 
 	var curSelected:Int = 0;
 	var curMenu:String = '';
+	var curOptions:Array<Dynamic> = [];
 	
 	var optionsGroup:FlxTypedGroup<TextOption>;
+	
+	var gameplayOptions:Array<Dynamic> = [ //display name, description, save variable name
+	        ['Ghost Tapping',"Disables missing once you press a key when a note is not there",'disableGhostTap'],
+		['Downscroll',"Sets the Notes position to the bottom",'downScroll'],
+		['Middlescroll',"Sets the Notes position to the middle",'middleScroll'],
+		['Botplay',"Allows a bot to play the game for you",'botplay'],
+	];
+	var graphicsOptions:Array<Dynamic> = [ //display name, description, save variable name
+		['Distractions',"Toggle Distractions",'noDistractions'],
+		['Epilepsy',"Disables most flashing lights",'epilepsyMode'],
+		['Show Outdated Screen',"Toggle Outdated Screen",'disableOutdatedScreen']
+	];
+	var sections:Array<Dynamic> = [];
 
 	var optionDetails:FlxText;
 
 	override function create() {
+		sections.push(['Keybinds','default']);
+		sections.push(['Gameplay','default']);
+		sections.push(['Graphics','default']);
+		sections.push(['Modding','default']);
+		
 		background = new FlxSprite(0, 0, Paths.image('menuBGBlue'));
 		background.scrollFactor.x = 0;
 		background.scrollFactor.y = 0;
@@ -41,7 +60,7 @@ class OptionsMenu extends MusicBeatState {
 
 		optionsGroup = new FlxTypedGroup<TextOption>();
 
-		generateOptions();
+		generateOptions(true);
 
 		add(optionsGroup);
 
@@ -81,12 +100,15 @@ class OptionsMenu extends MusicBeatState {
 		if (controls.UP_P && curSelected > 0)
 			curSelected--;
 		if (controls.ACCEPT)
+		{
+			FlxG.sound.play(Paths.sound('scrollMenu', 'preload'));
 			optionSelected();
+		}
 		if (controls.BACK){
 			curSelected = 0;
 
 			if (curMenu != 'default')
-				generateOptions();
+				generateOptions(true);
 			else
 				FlxG.switchState(new MainMenuState());
 
@@ -98,22 +120,16 @@ class OptionsMenu extends MusicBeatState {
 			FlxG.save.data.allowMods = true;
 		#end
 
-		switch (optionsGroup.members[curSelected].text.toLowerCase().substr(0, optionsGroup.members[curSelected].text.toLowerCase().indexOf(" ", 0))){
-			case 'ghost-tapping':
-				optionDetails.text = "Disables missing for when you don't hit a note";
-			case 'downscroll':
-				optionDetails.text = "Puts the Strumline at the bottom";
-			case 'middlescroll':
-				optionDetails.text = "Centers the Strumline";
-			case 'botplay':
-				optionDetails.text = "Plays the game for you";
-			case 'distractions':
-				optionDetails.text = "Toggle Distractions";
-			case 'epilepsy':
-				optionDetails.text = "Disables most flashing lights";
+		switch(curMenu)
+		{
+			case 'gameplay':
+				optionDetails.text = gameplayOptions[curSelected][1];
+			case 'graphics':
+				optionDetails.text = graphicsOptions[curSelected][1];
 			default:
-				optionDetails.text = "";
+				optionDetails.text = '';
 		}
+		//optionDetails.text = curOptions[curSelected][1];
 	}
 
 	function generateOptions(theOptionGroup:String = null){
@@ -128,43 +144,39 @@ class OptionsMenu extends MusicBeatState {
 
 		optionsGroup.clear();
 
-		switch (theOptionGroup.toLowerCase()){
+                switch (theOptionGroup.toLowerCase())
+		{
 			default:
-				optionArray = [
-					'Gameplay',
-					'Graphics',
-					'Modding'
-				];
-
-				optionSelectionProperties = [1, 1, 2];
+				optionSelectionProperties = [2, 1, 1, 2];
 				curMenu = 'default';
 			case 'gameplay':
-				optionArray = [
-					"Keybinds",
-					'Ghost-tapping ${FlxG.save.data.disableGhostTap ? 'OFF' : 'ON'}',
-					'Downscroll ${FlxG.save.data.downScroll ? 'ON' : 'OFF'}',
-					'Middlescroll ${FlxG.save.data.middleScroll ? 'ON' : 'OFF'}',
-					'Botplay ${FlxG.save.data.botplay ? 'ON' : 'OFF'}',
-				];
-
-				optionSelectionProperties = [2, 0, 0, 0, 0, 0, 0, 0];
-				curMenu = 'gameplay';
+				optionSelectionProperties = [0, 0, 0, 0, 0, 0, 0];
 			case 'graphics':
-				optionArray = [
-				    'Distractions ${FlxG.save.data.noDistractions ? 'OFF' : 'ON'}',
-				    'Epilepsy Mode ${FlxG.save.data.epilepsyMode ? 'ON' : 'OFF'}',
-					'Show Outdated Screen ${FlxG.save.data.disableOutdatedScreen ? 'OFF' : 'ON'}'
-				];
-
 				optionSelectionProperties = [0, 0, 0, 0, 0];
-				curMenu = 'graphics';
 		}
 
-		for (num in 0...optionArray.length){
-			funnyOption = new TextOption(0, 0, optionArray[num], optionSelectionProperties[num]);
-			funnyOption.screenCenter(Y);
-			funnyOption.y = 78 * num;
-			optionsGroup.add(funnyOption);
+		if (sectionGeneration)
+		{
+			for (num in 0...sections.length) 
+			{
+				if (curMenu == 'default')
+				{
+					funnyOption = new TextOption(0, 0, sections[num][0], optionSelectionProperties[num]);
+					funnyOption.screenCenter(Y);
+					funnyOption.y = 78 * num;
+					optionsGroup.add(funnyOption);
+				}
+			}
+		}
+		else
+		{
+			for (num in 0...curOptions.length) 
+			{
+				funnyOption = new TextOption(0, 0, curOptions[num][0], optionSelectionProperties[num], Reflect.getProperty(engine.OptionsData,curOptions[num][2]));
+				funnyOption.screenCenter(Y);
+				funnyOption.y = 78 * num;
+				optionsGroup.add(funnyOption);
+			}
 		}
 	}
 
@@ -173,28 +185,27 @@ class OptionsMenu extends MusicBeatState {
 
 		switch (optionsGroup.members[curSelected].funnyOptionType){ // messy but in my opinion it works better than the old system
 			case 0:
-				switch(optionsGroup.members[curSelected].text.toLowerCase().substr(0, optionsGroup.members[curSelected].text.toLowerCase().indexOf(" ", 0))){
-					// gameplay
-					case 'ghost-tapping':
-						FlxG.save.data.disableGhostTap = !FlxG.save.data.disableGhostTap;
-					case 'downscroll':
-						FlxG.save.data.downScroll = !FlxG.save.data.downScroll;
-					case 'middlescroll':
-						FlxG.save.data.middleScroll = !FlxG.save.data.middleScroll;
-					case 'botplay':
-						FlxG.save.data.botplay = !FlxG.save.data.botplay;
-					// graphics
-					case 'distractions':
-						FlxG.save.data.noDistractions = !FlxG.save.data.noDistractions;
-					case 'epilepsy':
-						FlxG.save.data.epilepsyMode = !FlxG.save.data.epilepsyMode;
-					case 'show': // show outdated screen
-						FlxG.save.data.disableOutdatedScreen = !FlxG.save.data.disableOutdatedScreen;
-				}
+                                Reflect.setProperty(engine.OptionsData, curOptions[curSelected][2], !Reflect.getProperty(engine.OptionsData,curOptions[curSelected][2]));
 
-				generateOptions(curMenu); //reload the current menu
+                                engine.OptionsData.dumpData();
+				engine.OptionsData.loadData();
+
+				optionsGroup.members[curSelected].refreshText(Reflect.getProperty(engine.OptionsData,curOptions[curSelected][0]),Reflect.getProperty(engine.OptionsData,curOptions[curSelected][2]));
+				
+				trace('Option State: ${Reflect.getProperty(engine.OptionsData,curOptions[curSelected][2])}'); 
+
+				generateOptions(curMenu,false); //reload the current menu
 			case 1:
-				generateOptions(optionsGroup.members[curSelected].text.toLowerCase());
+				switch (optionsGroup.members[curSelected].text.toLowerCase())
+				{
+					case 'gameplay':
+						curMenu = 'gameplay';
+						curOptions = gameplayOptions;
+					case 'graphics':
+						curMenu = 'graphics';
+						curOptions = graphicsOptions;
+				}
+				generateOptions(curMenu,false);
 				curSelected = 0;
 			case 2:
 				switch(optionsGroup.members[curSelected].text.toLowerCase()){
