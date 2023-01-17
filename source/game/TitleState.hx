@@ -52,6 +52,8 @@ class TitleState extends MusicBeatState
 		FlxG.save.bind('blueberryEngine', 'spunblue');
 
 		PlayerSettings.init();
+		
+		engine.OptionsData.loadData();
 
 		Highscore.load();
 
